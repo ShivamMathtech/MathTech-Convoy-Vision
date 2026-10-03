@@ -1,0 +1,12 @@
+.venv
+.train-venv
+.env
+data
+__pycache__
+.pytest_cache
+training-runs
+backups
+tests
+docs
+models/*.pt
+node_modules

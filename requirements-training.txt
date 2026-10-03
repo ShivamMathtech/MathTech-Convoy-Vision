@@ -1,0 +1,4 @@
+ultralytics==8.3.128
+onnx==1.18.0
+# Install matching CPU or CUDA torch/torchvision first; see docs/MODELS.md.
+

@@ -1,0 +1,10 @@
+-c constraints.txt
+fastapi==0.142.2
+uvicorn==0.54.0
+starlette==1.7.0
+pydantic==2.13.5
+
+opencv-python-headless==4.11.0.86
+onnxruntime==1.30.0
+python-multipart==0.0.32
+websockets==15.0.1

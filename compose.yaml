@@ -1,0 +1,25 @@
+services:
+  vision:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /app/data
+      MODEL_DIR: /app/models
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - vision-data:/app/data
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=600m,uid=10001,gid=10001,mode=1770
+    mem_limit: 3g
+    cpus: 4
+    stop_grace_period: 40s
+volumes:
+  vision-data:
+

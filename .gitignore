@@ -1,0 +1,12 @@
+.venv/
+.train-venv/
+.env
+data/
+__pycache__/
+.pytest_cache/
+*.pyc
+training-runs/
+evaluation.json
+backups/
+node_modules/
+package-lock.json
