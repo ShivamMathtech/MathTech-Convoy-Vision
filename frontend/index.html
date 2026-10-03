@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#06111d"><title>MathTech · Convoy Vision</title>
+  <link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script type="module" src="/static/app.js"></script>
+</head>
+<body>
+  <div id="login-screen" class="login-screen">
+    <form id="login-form" class="login-card">
+      <img src="/static/logo.svg" alt="MathTech" class="login-logo">
+      <div class="eyebrow">MATH TECH · I HAVE NO LIMITATION</div>
+      <h1>Convoy Vision</h1><p>Vehicle detection, segmentation &amp; visual analytics.</p>
+      <label>Username<input id="username" name="username" required autocomplete="username" maxlength="64" value="admin"></label>
+      <label>Password<input id="password" name="password" type="password" required autocomplete="current-password"></label>
+      <button type="submit" class="primary">Sign in to workspace</button>
+      <p id="login-error" class="error" role="alert"></p>
+      <small>Use the credentials configured during setup.</small>
+    </form>
+  </div>
+  <div id="workspace" hidden>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="MathTech home"><img src="/static/logo.svg" alt=""><div><h1>MathTech Convoy Vision</h1><p>Vehicle observation <span>·</span> Detection <span>·</span> Segmentation <span>·</span> Analysis</p></div></a>
+      <div class="top-status"><span class="status-dot"></span><span id="connection-status">System online</span><time id="clock"></time><button id="logout" class="quiet" aria-label="Sign out">Sign out</button></div>
+    </header>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="sidebar-label">WORKSPACE</div>
+        <nav aria-label="Main navigation">
+          <button class="nav active" data-page="dashboard"><span data-icon="grid"></span>Dashboard</button>
+          <button class="nav" data-page="live"><span data-icon="video"></span>Live Feed</button>
+          <button class="nav" data-page="analysis"><span data-icon="chart"></span>Analysis</button>
+          <button class="nav" data-page="dataset"><span data-icon="database"></span>Dataset</button>
+          <button class="nav" data-page="models"><span data-icon="layers"></span>Models</button>
+          <button class="nav" data-page="settings"><span data-icon="settings"></span>Settings</button>
+          <button class="nav" data-page="logs"><span data-icon="list"></span>System Logs</button>
+        </nav>
+        <div class="sidebar-bottom"><span class="tag">ONNX · CPU</span><p id="user-info"></p><small>Developed by Shivam Singh<br>Founder of MathTech</small></div>
+      </aside>
+      <main>
+        <section id="page-dashboard" class="page">
+          <div class="page-title"><div><div class="eyebrow">VISION WORKSPACE</div><h2>Observation dashboard</h2><p id="session-title">Choose a video or start a camera session.</p></div><span id="run-status" class="tag">READY</span></div>
+          <div class="dashboard-grid">
+            <article class="panel feed-panel">
+              <div class="panel-head"><h3><span data-icon="video"></span>Live / Input Feed</h3><span id="feed-mode" class="tag green">Detection + Segmentation</span></div>
+              <div class="feed-stage" id="feed-stage">
+                <img id="feed" alt="Analyzed video frame" hidden>
+                <div id="feed-empty" class="empty-state"><span data-icon="video"></span><h3>Your feed starts here</h3><p>Upload a road video to detect and segment vehicles.</p><button class="primary" id="empty-upload">Upload video</button><small>MP4 · MOV · WebM · AVI · MKV</small></div>
+                <div id="feed-caption" class="feed-caption" hidden></div>
+              </div>
+              <div class="playbar"><button id="replay-toggle" class="icon-button" title="Play saved analysis" aria-label="Play saved analysis" disabled>▶</button><span id="frame-time">00:00 / 00:00</span><input id="timeline" type="range" min="0" max="0" value="0" aria-label="Saved frame timeline" disabled><select id="replay-speed" aria-label="Replay speed"><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select><button id="fullscreen" class="icon-button" aria-label="Full screen feed"><span data-icon="expand"></span></button><button id="snapshot" class="icon-button" aria-label="Download analyzed frame" disabled><span data-icon="camera"></span></button></div>
+              <div class="viewbar"><span>VIEW</span><button class="chip active" data-view="overlay">Overlay</button><button class="chip" data-view="original">Original</button><button class="chip" data-view="trail">Tracking</button><span id="frame-stats">No frames analyzed</span></div>
+            </article>
+            <article class="panel segmentation-panel"><div class="panel-head"><h3><span data-icon="layers"></span>Segmentation Output</h3><span class="tag">INSTANCE</span></div><div class="secondary-stage"><img id="mask-feed" alt="Vehicle instance segmentation masks" hidden><div id="mask-empty" class="empty-state compact"><span data-icon="layers"></span><p>Model-generated vehicle masks<br>will appear during analysis.</p></div></div><div class="legend" id="mask-legend"></div></article>
+            <div class="right-stack">
+              <article class="panel"><div class="panel-head"><h3><span data-icon="truck"></span>Detected Objects</h3><span id="object-count" class="count">0</span></div><div id="detected-objects" class="object-list"><p class="muted padded">No vehicles detected yet.</p></div></article>
+              <article class="panel group-panel"><div class="panel-head"><h3><span data-icon="activity"></span>Vehicle Group Status</h3></div><div class="group-body"><div class="group-indicator"><span data-icon="shield"></span><div><strong id="group-status">Awaiting analysis</strong><small>Proximity + image motion heuristic</small></div></div><div class="mini-metrics"><div><small>Group size</small><strong id="group-size">—</strong></div><div><small>Coordinates</small><strong>Image pixels</strong></div></div><p class="micro">Candidate groups require review. Camera movement can affect this estimate.</p></div></article>
+            </div>
+            <article class="panel results-panel"><div class="panel-head"><h3><span data-icon="list"></span>Analysis Results</h3><span class="muted">Current frame</span></div><div class="table-scroll"><table><thead><tr><th>ID</th><th>Class</th><th>Conf.</th><th>Mask px</th><th>Center (x,y)</th><th>px/s</th></tr></thead><tbody id="results-table"><tr><td colspan="6" class="muted">Start analysis to inspect vehicles.</td></tr></tbody></table></div><div id="selected-detail" class="selected-detail muted">Select a row to inspect a track.</div></article>
+            <article class="panel trajectory-panel"><div class="panel-head"><h3><span data-icon="activity"></span>Object Tracking</h3><span class="muted">Session IDs</span></div><div class="trajectory-stage"><img id="trail-feed" alt="Vehicle trajectories in image coordinates" hidden><div id="trail-empty" class="empty-state compact"><p>Trajectories appear after<br>consecutive detections.</p></div></div><div class="padded micro">Motion values use analysis-frame pixels per second.</div></article>
+            <article class="panel confidence-panel"><div class="panel-head"><h3><span data-icon="chart"></span>Detection Confidence</h3><span class="muted">Recent samples</span></div><div class="chart-wrap"><canvas id="confidence-chart" aria-label="Mean vehicle confidence by frame" role="img"></canvas></div><div class="legend" id="confidence-legend"></div></article>
+            <article class="panel controls-panel"><div class="panel-head"><h3><span data-icon="settings"></span>Controls</h3></div><div class="controls-body">
+              <label>Model<select id="model-select"></select></label>
+              <label>Input source<select id="source-select"><option value="file">Video file</option><option value="camera">Browser camera</option></select></label>
+              <div id="file-controls"><div class="input-row"><select id="media-select" aria-label="Selected video"><option value="">Choose uploaded video</option></select><button id="browse" class="small">Browse</button></div><div id="upload-progress" class="micro"></div></div>
+              <label>Confidence <span id="confidence-value">0.30</span><input id="confidence" type="range" min=".05" max=".95" step=".05" value=".3"></label>
+              <label class="input-row">Analysis FPS<input id="analysis-fps" type="number" min=".5" max="15" step=".5" value="5"></label>
+              <label>Analysis mode<select id="analysis-mode"><option value="segment">Detection + Segmentation</option><option value="detect">Detection only</option></select></label>
+              <button id="run-analysis" class="primary"><span data-icon="play"></span>Run Analysis</button><div class="input-row"><button id="pause-analysis" disabled>Pause</button><button id="stop-analysis" class="danger" disabled>Stop</button></div>
+              <progress id="job-progress" max="1" value="0"></progress><p id="job-message" class="micro">Ready for a video or camera feed.</p>
+            </div></article>
+          </div>
+        </section>
+        <section id="page-live" class="page" hidden>
+          <div class="page-title"><div><div class="eyebrow">LIVE INPUT</div><h2>Browser camera</h2><p>Connect a webcam or USB video capture device.</p></div><button id="camera-to-dashboard" class="primary">Analyze camera feed</button></div>
+          <div class="two-column"><article class="panel"><div class="panel-head"><h3>Camera preview</h3><span id="camera-status" class="tag">OFFLINE</span></div><div class="camera-stage"><video id="camera-video" autoplay playsinline muted></video><div id="camera-placeholder" class="empty-state"><span data-icon="video"></span><p>Allow camera access to preview your feed.</p></div></div><div class="button-row"><button id="enable-camera" class="primary">Enable camera</button><button id="disable-camera">Disconnect</button></div></article><article class="panel"><div class="panel-head"><h3>Connection details</h3></div><div class="padded"><label>Camera device<select id="camera-device"><option value="">Default camera</option></select></label><p id="camera-details" class="muted">No camera connected.</p><p>Frames are analyzed on your server and saved for session replay. Camera access requires localhost or HTTPS.</p><p>For a drone feed, use a USB/HDMI capture device exposed as a camera, or upload a recorded video.</p><small>Inference speed depends on CPU capacity, resolution and scene density.</small></div></article></div>
+        </section>
+        <section id="page-analysis" class="page" hidden>
+          <div class="page-title"><div><div class="eyebrow">PERSISTENT SESSIONS</div><h2>Analysis &amp; replay</h2><p>Inspect saved runs and export the recorded model outputs.</p></div><button id="refresh-sessions">Refresh</button></div>
+          <div class="panel"><div class="panel-head"><h3>Saved sessions</h3><span id="session-count" class="tag">0 RUNS</span></div><div class="table-scroll"><table><thead><tr><th>Session</th><th>Source</th><th>Status</th><th>Frames</th><th>Created</th><th>Actions</th></tr></thead><tbody id="sessions-table"></tbody></table></div></div>
+          <div id="summary-section" hidden><div class="metric-grid" id="summary-metrics"></div><div class="two-column"><article class="panel"><div class="panel-head"><h3>Vehicles per analyzed frame</h3></div><div class="large-chart"><canvas id="count-chart" role="img" aria-label="Vehicle count by video time"></canvas></div></article><article class="panel"><div class="panel-head"><h3>Mean confidence by video time</h3></div><div class="large-chart"><canvas id="summary-chart" role="img" aria-label="Mean confidence by video time"></canvas></div></article></div><p class="micro">Unique track IDs are session-local counts; occlusion can split one vehicle into several IDs.</p></div>
+        </section>
+        <section id="page-dataset" class="page" hidden>
+          <div class="page-title"><div><div class="eyebrow">HUMAN REVIEW</div><h2>Dataset &amp; annotations</h2><p>Draw vehicle polygons on source frames and export a YOLO segmentation dataset.</p></div><div class="button-row"><button id="dataset-upload">Upload video</button><button id="export-dataset" class="primary">Export dataset ZIP</button></div></div>
+          <div class="two-column dataset-layout"><article class="panel"><div class="panel-head"><h3>Video library</h3><span id="media-count" class="count">0</span></div><div id="media-list" class="media-list"></div></article><article class="panel annotation-panel"><div class="panel-head"><h3>Polygon editor</h3><span id="annotation-file" class="muted">Select a video</span></div><div class="annotation-toolbar"><label>Source frame<input id="annotation-frame" type="number" value="0" min="0"></label><button id="load-annotation-frame">Load</button><label>Class<select id="annotation-class"><option>car</option><option>truck</option><option>bus</option><option>motorcycle</option><option>bicycle</option></select></label></div><div class="annotation-stage"><canvas id="annotation-canvas" width="960" height="540" aria-label="Draw vehicle polygon with clicks"></canvas><div id="annotation-placeholder" class="empty-state compact"><p>Select a video, then click around a vehicle.</p></div></div><div class="button-row"><button id="finish-polygon">Finish polygon</button><button id="undo-point">Undo</button><button id="clear-polygons" class="danger">Clear frame</button><button id="save-annotations" class="primary">Save annotations</button></div><div class="padded"><p class="micro">Click to add vertices. Double-click or press Enter to finish. Esc cancels the current polygon. Empty saved frames become negative samples.</p><div id="polygon-list"></div></div></article></div>
+        </section>
+        <section id="page-models" class="page" hidden><div class="page-title"><div><div class="eyebrow">MODEL REGISTRY</div><h2>Detection &amp; segmentation</h2><p>Verified ONNX weights with CPU inference and real instance masks.</p></div></div><div id="model-cards" class="model-grid"></div><article class="panel"><div class="panel-head"><h3>Training and deployment</h3></div><div class="padded"><p>The bundled model detects generic vehicle classes. Aerial camera angles, small objects and poor visibility can reduce accuracy. Validate on your own held-out videos before deployment.</p><p>Use the included <code>scripts/train.py</code>, <code>scripts/evaluate.py</code> and <code>scripts/register_model.py</code> to train, evaluate and register trusted YOLOv8 ONNX models. Restart the service after changing the registry.</p><p class="micro">Model code and weights use AGPL-3.0. See THIRD_PARTY_NOTICES.md for the source and licensing information.</p></div></article></section>
+        <section id="page-settings" class="page" hidden><div class="page-title"><div><div class="eyebrow">WORKSPACE CONFIGURATION</div><h2>Settings &amp; access</h2><p>Defaults apply to new runs. Current runs retain their saved configuration.</p></div></div><div class="two-column"><article class="panel"><div class="panel-head"><h3>Analysis defaults</h3></div><form id="settings-form" class="padded form-grid"><label>Confidence<input name="confidence" type="number" min=".05" max=".95" step=".01" required></label><label>NMS IoU<input name="iou" type="number" min=".1" max=".9" step=".05" required></label><label>Analysis FPS<input name="analysis_fps" type="number" min=".5" max="15" step=".5" required></label><label>Trail points<input name="trail_length" type="number" min="0" max="100" required></label><label>Mask opacity<input name="mask_opacity" type="number" min=".1" max=".9" step=".05" required></label><label>Minimum group size<input name="min_group" type="number" min="2" max="20" required></label><label>Group radius (normalized)<input name="group_radius" type="number" min=".05" max=".7" step=".05" required></label><label class="checkbox"><input name="show_labels" type="checkbox">Show object labels</label><button type="submit" class="primary">Save defaults</button></form></article><article class="panel"><div class="panel-head"><h3>System health</h3><button id="refresh-health" class="small">Refresh</button></div><div id="system-details" class="padded"></div></article></div><article id="access-panel" class="panel access-panel"><div class="panel-head"><h3>Team access</h3></div><div class="padded"><form id="user-form" class="user-form"><label>Username<input name="username" pattern="[a-zA-Z0-9_.-]+" required maxlength="64"></label><label>Password<input name="password" type="password" minlength="12" maxlength="256" required autocomplete="new-password"></label><label>Role<select name="role"><option value="operator">Operator</option><option value="viewer">Viewer</option></select></label><button type="submit" class="primary">Create user</button></form><div id="users-list"></div></div></article></section>
+        <section id="page-logs" class="page" hidden><div class="page-title"><div><div class="eyebrow">AUDIT &amp; OPERATIONS</div><h2>System logs</h2><p>Authentication, uploads, worker events and analysis errors.</p></div><div class="button-row"><select id="log-level" aria-label="Log level"><option>ALL</option><option>INFO</option><option>WARN</option><option>ERROR</option></select><button id="refresh-logs">Refresh</button></div></div><div class="panel"><div class="table-scroll"><table><thead><tr><th>Time</th><th>Level</th><th>Event</th><th>Actor</th></tr></thead><tbody id="logs-table"></tbody></table></div></div></section>
+        <footer>MathTech · I HAVE NO LIMITATION <span>v1.0.0 · Vehicle observation workspace</span></footer>
+      </main>
+    </div>
+  </div>
+  <input id="video-upload" type="file" accept="video/*,.mkv,.avi" hidden>
+  <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+  <dialog id="confirm-dialog"><form method="dialog"><h3>Confirm action</h3><p id="confirm-message"></p><div class="button-row"><button value="cancel">Cancel</button><button value="confirm" class="danger">Confirm</button></div></form></dialog>
+</body>
+</html>
